@@ -21,8 +21,36 @@
         />
         <button id="speak" title="Read aloud (⌘↵)" aria-label="Read aloud">🔊</button>
         <button id="mic" title="Dictate (macOS)" aria-label="Dictate">🎤</button>
+        <button id="gear" title="Settings" aria-label="Settings">⚙️</button>
       </div>
       <ul id="results" class="results"></ul>
+
+      <div id="settings" class="settings" hidden>
+        <label class="field">
+          <span>Hotkey</span>
+          <input id="set-hotkey" type="text" spellcheck="false" placeholder="cmd+ctrl+h" />
+        </label>
+        <label class="field">
+          <span>Dock to</span>
+          <select id="set-edge">
+            <option value="right">Right edge</option>
+            <option value="left">Left edge</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Opacity</span>
+          <input id="set-opacity" type="range" min="0" max="0.9" step="0.01" />
+        </label>
+        <label class="field">
+          <span>Voice</span>
+          <select id="set-voice"><option value="">System default</option></select>
+        </label>
+        <div class="set-actions">
+          <button id="set-close" class="btn-ghost">Cancel</button>
+          <button id="set-save" class="btn-primary">Save</button>
+        </div>
+        <p class="set-note">Hotkey: combine cmd / ctrl / alt / shift + a letter, e.g. <code>cmd+ctrl+h</code>.</p>
+      </div>
       <div class="hint">
         <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
         <span><kbd>↵</kbd> copy</span>
