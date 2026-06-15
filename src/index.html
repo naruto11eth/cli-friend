@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vim Helper</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="note">
+      <div class="bar">
+        <span class="prompt">vim</span>
+        <input
+          id="q"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="ask… e.g. delete to end of line"
+        />
+        <button id="speak" title="Read aloud (⌘↵)" aria-label="Read aloud">🔊</button>
+        <button id="mic" title="Dictate (macOS)" aria-label="Dictate">🎤</button>
+      </div>
+      <ul id="results" class="results"></ul>
+      <div class="hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+        <span><kbd>↵</kbd> copy</span>
+        <span><kbd>⌘↵</kbd> speak</span>
+        <span><kbd>esc</kbd> hide</span>
+      </div>
+      <div id="toast" class="toast" hidden></div>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
