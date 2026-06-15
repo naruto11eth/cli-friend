@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "identifier": "eth.naruto11.vimhelper",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../src",
+    "beforeBuildCommand": "bash scripts/build-stt.sh"
   },
   "app": {
     "withGlobalTauri": true,
@@ -35,6 +36,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "externalBin": ["binaries/vim-helper-stt"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
