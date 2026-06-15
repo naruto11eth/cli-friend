@@ -16,6 +16,11 @@
   padding: 0;
 }
 
+/* `hidden` must win over display rules like `.settings { display: flex }`. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   height: 100%;
@@ -31,8 +36,9 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Translucent tint over the native frosted-glass (vibrancy) backdrop. */
-  background: rgba(28, 31, 37, 0.26);
+  /* Translucent tint over the native frosted-glass (vibrancy) backdrop.
+     --note-alpha is set from settings at runtime. */
+  background: rgba(28, 31, 37, var(--note-alpha, 0.26));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   overflow: hidden;
@@ -90,6 +96,15 @@ body {
 .bar button:active {
   transform: scale(0.92);
 }
+#mic.listening {
+  background: var(--accent);
+  border-color: transparent;
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(126, 211, 33, 0.55); }
+  50% { box-shadow: 0 0 0 5px rgba(126, 211, 33, 0); }
+}
 
 /* ── results ── */
 .results {
@@ -118,6 +133,43 @@ body {
 
 .row.active {
   background: var(--sel);
+}
+
+/* category / "frequent" section headers in browse mode */
+.section {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-dim);
+  padding: 10px 9px 3px;
+  position: sticky;
+  top: 0;
+  background: rgba(20, 22, 27, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+/* extra detail (when-to-use + related keys): only on the highlighted row */
+.extra {
+  display: none;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+}
+.row.active .extra {
+  display: block;
+}
+.extra .use {
+  display: block;
+  font-size: 11.5px;
+  color: var(--fg);
+  opacity: 0.85;
+}
+.extra .also {
+  display: block;
+  margin-top: 3px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  color: var(--accent-dim);
 }
 
 .row .keys {
@@ -209,4 +261,93 @@ kbd {
 @keyframes pop {
   from { opacity: 0; transform: translateX(-50%) translateY(4px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── settings panel ── */
+.settings {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--fg);
+}
+
+.field > span {
+  flex: none;
+  color: var(--fg-dim);
+}
+
+.field input[type="text"],
+.field select {
+  flex: 1;
+  max-width: 200px;
+  background: var(--key-bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--fg);
+  padding: 5px 8px;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.field input[type="text"] {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.field input[type="range"] {
+  flex: 1;
+  max-width: 200px;
+  accent-color: var(--accent);
+}
+
+.set-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-primary,
+.btn-ghost {
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #0d1206;
+  font-weight: 600;
+  border-color: transparent;
+}
+
+.btn-ghost {
+  background: var(--bg-soft);
+  color: var(--fg);
+}
+
+.set-note {
+  font-size: 11px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+
+.set-note code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  background: var(--key-bg);
+  padding: 1px 5px;
+  border-radius: 5px;
+  color: var(--accent-dim);
 }
