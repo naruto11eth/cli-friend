@@ -214,7 +214,7 @@ fn set_config(
 }
 
 /// Record from the mic and return an on-device transcript, via the bundled
-/// `vim-helper-stt` Swift helper. Blocks up to ~10s, so it runs off-thread.
+/// `cli-friend-stt` Swift helper. Blocks up to ~10s, so it runs off-thread.
 #[tauri::command]
 async fn transcribe(app: tauri::AppHandle) -> Result<String, String> {
     if let Some(state) = app.try_state::<Listening>() {
@@ -225,9 +225,9 @@ async fn transcribe(app: tauri::AppHandle) -> Result<String, String> {
             .ok()
             .and_then(|p| p.parent().map(|d| d.to_path_buf()))
             .ok_or("cannot locate app directory")?;
-        let mut path = dir.join("vim-helper-stt");
+        let mut path = dir.join("cli-friend-stt");
         if !path.exists() {
-            path = dir.join("vim-helper-stt-aarch64-apple-darwin");
+            path = dir.join("cli-friend-stt-aarch64-apple-darwin");
         }
         if !path.exists() {
             return Err("speech helper not bundled".to_string());
@@ -340,12 +340,12 @@ pub fn run() {
                 true,
                 None::<&str>,
             )?;
-            let quit = MenuItem::with_id(app, "quit", "Quit Vim Helper", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "Quit CLI Friend", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &quit])?;
 
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("Vim Helper")
+                .tooltip("CLI Friend")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -396,5 +396,5 @@ pub fn run() {
             _ => {}
         })
         .run(tauri::generate_context!())
-        .expect("error while running Vim Helper");
+        .expect("error while running CLI Friend");
 }
