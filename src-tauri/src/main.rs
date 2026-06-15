@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    vim_helper_lib::run()
+    cli_friend_lib::run()
 }

@@ -1,12 +1,12 @@
 [package]
-name = "vim-helper"
+name = "cli-friend"
 version = "0.1.0"
-description = "Tiny menu-bar Vim shortcut helper"
+description = "Tiny menu-bar Vim + CLI cheatsheet helper"
 authors = ["naruto11eth"]
 edition = "2021"
 
 [lib]
-name = "vim_helper_lib"
+name = "cli_friend_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
