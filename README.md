@@ -22,10 +22,18 @@ of line"* and it shows you the keys — `D` (or `d$`) — instantly, fully offli
   clicking the menu-bar icon. Press it again — or click away, or hit `Esc` — to
   dismiss. No Dock icon; it lives in the menu bar only.
 - **Ask in plain English** — `copy a line`, `undo`, `replace all in file`,
-  `jump to matching bracket`, `save and quit`.
+  `jump to matching bracket`, `save and quit`. A synonym/concept layer maps
+  different wordings onto the same idea, plus typo tolerance.
 - **Reverse lookup** — type the keys (`dd`, `ciw`, `:%s`) to see what they do.
+- **Speak it** — 🎤 records and transcribes your question **on-device**
+  (macOS Speech), no network. 🔊 or `⌘↵` reads the highlighted command aloud.
+- **Browse** — empty query shows your **most-used** commands first, then the
+  full list grouped by category. The highlighted row reveals a *when to use*
+  hint and *see also* related keys.
 - **Copy the keys** — `↵` Enter copies the highlighted command's keystrokes to
   your clipboard. `↑`/`↓` to move between results.
+- **Settings (⚙)** — rebind the hotkey, pick the screen edge, set opacity, and
+  choose a TTS voice. Saved to `config.json` in the app's config dir.
 - **100% offline & private** — answers come from a curated local database
   (`src/vim-data.js`). No network, no API key.
 
@@ -51,26 +59,26 @@ Drag the `.app` to `/Applications`. On first launch macOS may warn it's from an
 unidentified developer (it's unsigned) — right-click → **Open** to allow it.
 To launch it automatically: System Settings → General → Login Items → add it.
 
-## Voice / dictation
+## Voice input
 
-The app's window uses macOS's `WKWebView`, which doesn't support in-browser
-speech recognition — so voice uses **macOS system Dictation** instead, which
-works in any text field:
+Click **🎤** and speak — a small Swift helper (`stt/vh-stt.swift`, using
+`SFSpeechRecognizer`) records and transcribes your question **on-device**, then
+drops the text into the search box. It's bundled as a Tauri sidecar
+(`vim-helper-stt`) and compiled automatically on `pnpm build`.
 
-1. Summon the popup (`⌘⌃H`) — the input is already focused.
-2. Press the dictation key (default: **press `fn` twice**, or set a key in
-   System Settings → Keyboard → Dictation).
-3. Speak your question; it searches as the words appear.
-
-The 🎤 button just focuses the field and reminds you of the shortcut.
+- **First use** prompts once for Microphone + Speech Recognition permission.
+- The WebView can't do in-browser speech recognition, so if the helper is
+  unavailable the 🎤 falls back to **macOS Dictation** (`fn` `fn`).
+- Read-aloud (🔊 / `⌘↵`) uses the macOS `say` command, voice configurable in ⚙.
 
 ## Customize
 
 - **Add/edit commands:** `src/vim-data.js` — each entry has `keys`, `desc`,
-  `mode`, `cat`, and `tags` (synonyms that make natural-language search hit).
-  The search picks up new lines automatically.
-- **Change the hotkey:** `src-tauri/src/lib.rs` → the `hotkey` line
-  (`Modifiers::SUPER | Modifiers::CONTROL` + `Code::KeyH`).
+  `mode`, `cat`, `tags` (search synonyms), and optional `also`/`use`. The search
+  picks up new lines automatically.
+- **Teach it new phrasings:** add a line to the `GROUPS` map in `src/search.js`
+  (e.g. a new synonym for "delete") and the whole search understands it.
+- **Hotkey / opacity / edge / voice:** the ⚙ settings panel (no recompile).
 - **Window size / look:** `src-tauri/tauri.conf.json` (size) and
   `src/styles.css` (appearance).
 
@@ -80,13 +88,17 @@ The 🎤 button just focuses the field and reminds you of the shortcut.
 src/                 frontend (static, no bundler)
   index.html
   styles.css
-  main.js            UI: input, results, keyboard nav, copy, dismiss
-  search.js          offline token-scoring search
+  main.js            UI: search, browse, keyboard nav, copy, TTS, settings
+  search.js          offline synonym/concept search + fuzzy + frequency
   vim-data.js        the curated command database  ← edit me
 src-tauri/           Rust backend
-  src/lib.rs         tray icon, global hotkey, window show/hide
+  src/lib.rs         tray, hotkey, window, config, TTS, transcribe
   tauri.conf.json    window + bundle config
+stt/
+  vh-stt.swift       on-device speech-to-text helper (sidecar)
+  Info.plist         mic/speech usage strings embedded in the helper
 scripts/
+  build-stt.sh       compiles + signs the STT helper (run on build)
   generate-icon.cjs  regenerates the source app icon
 ```
 
