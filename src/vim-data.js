@@ -5,12 +5,14 @@
 //   mode  - Normal | Insert | Visual | Command | Any
 //   cat   - category, for grouping/filtering
 //   tags  - extra synonyms so natural-language queries match
+//   also  - (optional) related keystrokes to suggest ("see also")
+//   use   - (optional) one-line "when to use this"
 //
 // Add your own lines freely — the search picks them up automatically.
 
 export const VIM_COMMANDS = [
   // ── Modes ─────────────────────────────────────────────
-  { keys: "i", desc: "Insert before the cursor", mode: "Normal", cat: "Modes", tags: "insert type write edit enter input mode" },
+  { keys: "i", desc: "Insert before the cursor", mode: "Normal", cat: "Modes", tags: "insert type write edit enter input mode", also: "a, I, A, o", use: "The most common way to start typing" },
   { keys: "I", desc: "Insert at the first non-blank of the line", mode: "Normal", cat: "Modes", tags: "insert start beginning line" },
   { keys: "a", desc: "Append after the cursor", mode: "Normal", cat: "Modes", tags: "append insert after type" },
   { keys: "A", desc: "Append at the end of the line", mode: "Normal", cat: "Modes", tags: "append end of line insert" },
@@ -61,7 +63,7 @@ export const VIM_COMMANDS = [
   // ── Editing / deleting ────────────────────────────────
   { keys: "x", desc: "Delete the character under the cursor", mode: "Normal", cat: "Edit", tags: "delete char remove cut letter forward delete" },
   { keys: "X", desc: "Delete the character before the cursor (backspace)", mode: "Normal", cat: "Edit", tags: "delete backspace char before remove" },
-  { keys: "dd", desc: "Delete (cut) the current line", mode: "Normal", cat: "Edit", tags: "delete line cut remove whole line" },
+  { keys: "dd", desc: "Delete (cut) the current line", mode: "Normal", cat: "Edit", tags: "delete line cut remove whole line", also: "D, cc, dw", use: "Cut a whole line; pair with p to move it" },
   { keys: "{n}dd", desc: "Delete (cut) n lines", mode: "Normal", cat: "Edit", tags: "delete multiple lines cut n lines" },
   { keys: "dw", desc: "Delete from cursor to the start of the next word", mode: "Normal", cat: "Edit", tags: "delete word cut remove forward" },
   { keys: "diw", desc: "Delete the word under the cursor (inner word)", mode: "Normal", cat: "Edit", tags: "delete inner word remove whole word" },
@@ -75,7 +77,7 @@ export const VIM_COMMANDS = [
   { keys: "r{char}", desc: "Replace the single character under the cursor", mode: "Normal", cat: "Edit", tags: "replace one character single overwrite" },
   { keys: "cc  (or S)", desc: "Change (delete + insert) the whole line", mode: "Normal", cat: "Edit", tags: "change line clear retype replace whole line" },
   { keys: "cw", desc: "Change to the end of the word", mode: "Normal", cat: "Edit", tags: "change word retype replace" },
-  { keys: "ciw", desc: "Change the inner word under the cursor", mode: "Normal", cat: "Edit", tags: "change inner word replace retype whole word" },
+  { keys: "ciw", desc: "Change the inner word under the cursor", mode: "Normal", cat: "Edit", tags: "change inner word replace retype whole word", also: "diw, cc, cw", use: "Replace the word you're on in one move" },
   { keys: "ci(  ci{  ci\"", desc: "Change inside brackets/quotes", mode: "Normal", cat: "Edit", tags: "change inside brackets quotes parentheses contents replace" },
   { keys: "C  (or c$)", desc: "Change from the cursor to the end of the line", mode: "Normal", cat: "Edit", tags: "change to end of line retype rest" },
   { keys: "s", desc: "Delete the character and start inserting", mode: "Normal", cat: "Edit", tags: "substitute char delete insert replace" },
@@ -85,34 +87,34 @@ export const VIM_COMMANDS = [
   { keys: ".", desc: "Repeat the last change", mode: "Normal", cat: "Edit", tags: "repeat last command change dot redo action again" },
 
   // ── Copy / paste (yank / put) ─────────────────────────
-  { keys: "yy  (or Y)", desc: "Yank (copy) the current line", mode: "Normal", cat: "Copy/Paste", tags: "copy yank line clipboard duplicate" },
+  { keys: "yy  (or Y)", desc: "Yank (copy) the current line", mode: "Normal", cat: "Copy/Paste", tags: "copy yank line clipboard duplicate", also: "p, P, yiw", use: "Copy a line to paste elsewhere" },
   { keys: "{n}yy", desc: "Yank (copy) n lines", mode: "Normal", cat: "Copy/Paste", tags: "copy yank multiple lines n" },
   { keys: "yw", desc: "Yank (copy) to the start of the next word", mode: "Normal", cat: "Copy/Paste", tags: "copy yank word" },
   { keys: "yiw", desc: "Yank (copy) the inner word", mode: "Normal", cat: "Copy/Paste", tags: "copy yank inner word whole word" },
   { keys: "y$", desc: "Yank (copy) to the end of the line", mode: "Normal", cat: "Copy/Paste", tags: "copy yank to end of line rest" },
-  { keys: "p", desc: "Paste after the cursor / below the line", mode: "Normal", cat: "Copy/Paste", tags: "paste put after below insert clipboard" },
+  { keys: "p", desc: "Paste after the cursor / below the line", mode: "Normal", cat: "Copy/Paste", tags: "paste put after below insert clipboard", also: "P, yy, \"+p", use: "Paste what you last deleted or yanked" },
   { keys: "P", desc: "Paste before the cursor / above the line", mode: "Normal", cat: "Copy/Paste", tags: "paste put before above insert clipboard" },
   { keys: "\"+y / \"+p", desc: "Yank to / paste from the system clipboard", mode: "Any", cat: "Copy/Paste", tags: "system clipboard copy paste os external register plus" },
   { keys: "\"{a-z}y", desc: "Yank into a named register (e.g. \"ayy)", mode: "Normal", cat: "Copy/Paste", tags: "register named yank copy store buffer" },
 
   // ── Undo / redo ───────────────────────────────────────
-  { keys: "u", desc: "Undo the last change", mode: "Normal", cat: "Undo", tags: "undo revert back mistake go back" },
+  { keys: "u", desc: "Undo the last change", mode: "Normal", cat: "Undo", tags: "undo revert back mistake go back", also: "Ctrl-r, U", use: "Step back through your changes" },
   { keys: "Ctrl-r", desc: "Redo (undo the undo)", mode: "Normal", cat: "Undo", tags: "redo forward again restore" },
   { keys: "U", desc: "Undo all latest changes on one line", mode: "Normal", cat: "Undo", tags: "undo line revert whole line" },
 
   // ── Search ────────────────────────────────────────────
-  { keys: "/{pattern}", desc: "Search forward for a pattern", mode: "Normal", cat: "Search", tags: "search find forward pattern text look for" },
+  { keys: "/{pattern}", desc: "Search forward for a pattern", mode: "Normal", cat: "Search", tags: "search find forward pattern text look for", also: "?, n, N, *", use: "Find text anywhere in the file" },
   { keys: "?{pattern}", desc: "Search backward for a pattern", mode: "Normal", cat: "Search", tags: "search find backward pattern text" },
   { keys: "n", desc: "Repeat the search in the same direction", mode: "Normal", cat: "Search", tags: "next search match occurrence instance repeat find again go to forward" },
   { keys: "N", desc: "Repeat the search in the opposite direction", mode: "Normal", cat: "Search", tags: "previous search match occurrence instance repeat find reverse go to backward" },
-  { keys: "*", desc: "Search forward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor next occurrence instance same identifier variable function name go to forward jump usage" },
+  { keys: "*", desc: "Search forward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor next occurrence instance same identifier variable function name go to forward jump usage", also: "#, n, gd", use: "Jump between uses of the word you're on" },
   { keys: "#", desc: "Search backward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor previous occurrence instance same identifier variable function name go to backward jump usage" },
   { keys: ":noh", desc: "Clear / turn off search highlighting", mode: "Command", cat: "Search", tags: "clear remove search highlight nohlsearch turn off" },
 
   // ── Find & replace (substitute) ───────────────────────
   { keys: ":s/old/new/", desc: "Replace first match on the current line", mode: "Command", cat: "Replace", tags: "substitute replace find swap current line first" },
   { keys: ":s/old/new/g", desc: "Replace all matches on the current line", mode: "Command", cat: "Replace", tags: "substitute replace all current line global" },
-  { keys: ":%s/old/new/g", desc: "Replace all matches in the whole file", mode: "Command", cat: "Replace", tags: "substitute replace all everywhere whole file global document find replace" },
+  { keys: ":%s/old/new/g", desc: "Replace all matches in the whole file", mode: "Command", cat: "Replace", tags: "substitute replace all everywhere whole file global document find replace", also: ":s/old/new/g, :%s/old/new/gc", use: "File-wide find and replace" },
   { keys: ":%s/old/new/gc", desc: "Replace all in file, confirming each one", mode: "Command", cat: "Replace", tags: "substitute replace all confirm prompt ask each global file" },
   { keys: ":%s/old/new/gi", desc: "Replace all in file, case-insensitive", mode: "Command", cat: "Replace", tags: "substitute replace all case insensitive ignore case global" },
 
@@ -158,7 +160,7 @@ export const VIM_COMMANDS = [
   { keys: "`{a-z}", desc: "Jump to a mark's exact position", mode: "Normal", cat: "Marks", tags: "jump mark bookmark go to position backtick" },
   { keys: "''", desc: "Jump back to the line before the last jump", mode: "Normal", cat: "Marks", tags: "jump back previous position return" },
   { keys: "Ctrl-o / Ctrl-i", desc: "Go back / forward in the jump list", mode: "Normal", cat: "Marks", tags: "jump list back forward navigate history previous location" },
-  { keys: "gd", desc: "Go to the local definition of the symbol under the cursor", mode: "Normal", cat: "Marks", tags: "go to definition symbol local declaration variable function where defined" },
+  { keys: "gd", desc: "Go to the local definition of the symbol under the cursor", mode: "Normal", cat: "Marks", tags: "go to definition symbol local declaration variable function where defined", also: "gD, Ctrl-], *", use: "Jump to where a symbol is defined" },
   { keys: "gD", desc: "Go to the global/first definition of the symbol in the file", mode: "Normal", cat: "Marks", tags: "go to definition global symbol declaration function where defined" },
   { keys: "Ctrl-]", desc: "Jump to the definition via tags (ctags)", mode: "Normal", cat: "Marks", tags: "go to definition tag jump function symbol follow declaration" },
   { keys: "Ctrl-t", desc: "Jump back from a tag/definition jump", mode: "Normal", cat: "Marks", tags: "go back return tag definition previous pop" },
