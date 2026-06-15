@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 
 # Target triple Tauri expects for the sidecar filename.
 TRIPLE="$(rustc -vV | sed -n 's/host: //p')"
-OUT="src-tauri/binaries/vim-helper-stt-${TRIPLE}"
+OUT="src-tauri/binaries/cli-friend-stt-${TRIPLE}"
 mkdir -p src-tauri/binaries
 
 echo "Compiling stt/vh-stt.swift -> ${OUT}"

@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Vim Helper uses the microphone so you can speak your question.</string>
+  <string>CLI Friend uses the microphone so you can speak your question.</string>
   <key>NSSpeechRecognitionUsageDescription</key>
-  <string>Vim Helper transcribes your spoken question on-device.</string>
+  <string>CLI Friend transcribes your spoken question on-device.</string>
 </dict>
 </plist>
