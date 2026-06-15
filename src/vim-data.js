@@ -103,10 +103,10 @@ export const VIM_COMMANDS = [
   // ── Search ────────────────────────────────────────────
   { keys: "/{pattern}", desc: "Search forward for a pattern", mode: "Normal", cat: "Search", tags: "search find forward pattern text look for" },
   { keys: "?{pattern}", desc: "Search backward for a pattern", mode: "Normal", cat: "Search", tags: "search find backward pattern text" },
-  { keys: "n", desc: "Repeat the search in the same direction", mode: "Normal", cat: "Search", tags: "next search match repeat find again" },
-  { keys: "N", desc: "Repeat the search in the opposite direction", mode: "Normal", cat: "Search", tags: "previous search match repeat find reverse" },
-  { keys: "*", desc: "Search forward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor next occurrence find" },
-  { keys: "#", desc: "Search backward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor previous occurrence find" },
+  { keys: "n", desc: "Repeat the search in the same direction", mode: "Normal", cat: "Search", tags: "next search match occurrence instance repeat find again go to forward" },
+  { keys: "N", desc: "Repeat the search in the opposite direction", mode: "Normal", cat: "Search", tags: "previous search match occurrence instance repeat find reverse go to backward" },
+  { keys: "*", desc: "Search forward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor next occurrence instance same identifier variable function name go to forward jump usage" },
+  { keys: "#", desc: "Search backward for the word under the cursor", mode: "Normal", cat: "Search", tags: "search word under cursor previous occurrence instance same identifier variable function name go to backward jump usage" },
   { keys: ":noh", desc: "Clear / turn off search highlighting", mode: "Command", cat: "Search", tags: "clear remove search highlight nohlsearch turn off" },
 
   // ── Find & replace (substitute) ───────────────────────
@@ -158,7 +158,11 @@ export const VIM_COMMANDS = [
   { keys: "`{a-z}", desc: "Jump to a mark's exact position", mode: "Normal", cat: "Marks", tags: "jump mark bookmark go to position backtick" },
   { keys: "''", desc: "Jump back to the line before the last jump", mode: "Normal", cat: "Marks", tags: "jump back previous position return" },
   { keys: "Ctrl-o / Ctrl-i", desc: "Go back / forward in the jump list", mode: "Normal", cat: "Marks", tags: "jump list back forward navigate history previous location" },
-  { keys: "gd", desc: "Go to the local definition of the symbol", mode: "Normal", cat: "Marks", tags: "go to definition symbol local declaration" },
+  { keys: "gd", desc: "Go to the local definition of the symbol under the cursor", mode: "Normal", cat: "Marks", tags: "go to definition symbol local declaration variable function where defined" },
+  { keys: "gD", desc: "Go to the global/first definition of the symbol in the file", mode: "Normal", cat: "Marks", tags: "go to definition global symbol declaration function where defined" },
+  { keys: "Ctrl-]", desc: "Jump to the definition via tags (ctags)", mode: "Normal", cat: "Marks", tags: "go to definition tag jump function symbol follow declaration" },
+  { keys: "Ctrl-t", desc: "Jump back from a tag/definition jump", mode: "Normal", cat: "Marks", tags: "go back return tag definition previous pop" },
+  { keys: "gf", desc: "Open the file whose name is under the cursor", mode: "Normal", cat: "Marks", tags: "go to file open path under cursor follow import" },
 
   // ── Macros ────────────────────────────────────────────
   { keys: "q{a-z} … q", desc: "Record a macro into a register, q to stop", mode: "Normal", cat: "Macros", tags: "record macro automate repeat actions" },
