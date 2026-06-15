@@ -31,8 +31,9 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  /* Translucent tint over the native frosted-glass (vibrancy) backdrop. */
+  background: rgba(28, 31, 37, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   overflow: hidden;
   position: relative;
@@ -72,7 +73,7 @@ body {
   color: var(--fg-dim);
 }
 
-#mic {
+.bar button {
   flex: none;
   background: var(--bg-soft);
   border: 1px solid var(--border);
@@ -83,10 +84,10 @@ body {
   cursor: pointer;
   transition: transform 0.08s ease, background 0.15s ease;
 }
-#mic:hover {
+.bar button:hover {
   background: #2e3540;
 }
-#mic:active {
+.bar button:active {
   transform: scale(0.92);
 }
 
