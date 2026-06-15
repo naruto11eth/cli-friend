@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Vim Helper",
+  "productName": "CLI Friend",
   "version": "0.1.0",
-  "identifier": "eth.naruto11.vimhelper",
+  "identifier": "eth.naruto11.clifriend",
   "build": {
     "frontendDist": "../src",
     "beforeBuildCommand": "bash scripts/build-stt.sh"
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Vim Helper",
+        "title": "CLI Friend",
         "width": 380,
         "height": 460,
         "minWidth": 380,
@@ -36,7 +36,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "externalBin": ["binaries/vim-helper-stt"],
+    "externalBin": ["binaries/cli-friend-stt"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -45,7 +45,7 @@
       "icons/icon.ico"
     ],
     "category": "Productivity",
-    "shortDescription": "Tiny Vim shortcut helper",
-    "longDescription": "A small always-on-top menu-bar popup that answers plain-English questions about Vim keyboard shortcuts."
+    "shortDescription": "Tiny Vim + CLI cheatsheet",
+    "longDescription": "A small always-on-top menu-bar popup that answers plain-English questions about Vim keyboard shortcuts and modern CLI tools."
   }
 }
