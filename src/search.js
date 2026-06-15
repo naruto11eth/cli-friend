@@ -4,7 +4,9 @@
 // words for the same idea onto one canonical token ("remove"/"cut"/"erase" ->
 // "delete", "occurrence"/"instance"/"match" -> "occurrence", "jump"/"navigate"
 // -> "go"). Both the query and the database are mapped through the SAME map, so
-// the exact wording you type stops mattering. Plus light stemming for plurals.
+// the exact wording you type stops mattering. Plus light stemming for plurals,
+// typo tolerance (bounded edit distance), and a frequency boost for the
+// commands you look up most.
 
 import { VIM_COMMANDS } from "./vim-data.js";
 
@@ -84,6 +86,29 @@ function tokenize(s) {
     .map(canon);
 }
 
+// Bounded edit distance: true if `a` and `b` are within `max` edits.
+// Early-exits, so it's cheap for the small `max` (1) we use for typo tolerance.
+function withinEditDistance(a, b, max) {
+  const la = a.length;
+  const lb = b.length;
+  if (Math.abs(la - lb) > max) return false;
+  let prev = new Array(lb + 1);
+  for (let j = 0; j <= lb; j++) prev[j] = j;
+  for (let i = 1; i <= la; i++) {
+    const cur = new Array(lb + 1);
+    cur[0] = i;
+    let rowBest = i;
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+      if (cur[j] < rowBest) rowBest = cur[j];
+    }
+    if (rowBest > max) return false;
+    prev = cur;
+  }
+  return prev[lb] <= max;
+}
+
 // Build a cached, canonicalized search index once.
 const INDEX = VIM_COMMANDS.map((cmd) => ({
   cmd,
@@ -101,6 +126,15 @@ function isSubsequence(needle, hay) {
     if (hay[j] === needle[i]) i++;
   }
   return i === needle.length;
+}
+
+// Does any token in `set` fuzzily match `t` (within 1 edit)?
+function fuzzyHit(set, t) {
+  if (t.length < 4) return false;
+  for (const s of set) {
+    if (s.length >= 4 && withinEditDistance(t, s, 1)) return true;
+  }
+  return false;
 }
 
 function scoreEntry(entry, rawQuery, tokens) {
@@ -131,6 +165,12 @@ function scoreEntry(entry, rawQuery, tokens) {
     if (entry.catLower && entry.catLower.includes(t) && t.length >= 3) best = Math.max(best, 10);
     if (entry.keysLower.includes(t)) best = Math.max(best, 8);
 
+    // Typo tolerance: only when nothing else matched this token.
+    if (best === 0) {
+      if (fuzzyHit(entry.tagTokens, t)) best = 8;
+      else if (fuzzyHit(entry.descTokens, t)) best = 7;
+    }
+
     if (best > 0) matchedTokens++;
     score += best;
   }
@@ -145,24 +185,52 @@ function scoreEntry(entry, rawQuery, tokens) {
   return score;
 }
 
-// The whole list, ready to browse/scroll.
-const ALL = VIM_COMMANDS.map((cmd) => ({ cmd, score: 0 }));
+// Gentle lift for commands the user reaches for often — a tiebreaker, not an
+// override, so relevance still wins.
+function usageBoost(keys, usage) {
+  const n = usage[keys] || 0;
+  return n ? Math.min(n, 8) * 4 : 0;
+}
 
 /**
  * Search the database. Returns ranked { cmd, score } results.
  * Empty query or no matches → the full list, so there's always something to scroll.
+ * `usage` is an optional { keys: count } map that boosts frequently-used commands.
  */
-export function search(rawQuery, limit = 50) {
+export function search(rawQuery, { usage = {}, limit = 50 } = {}) {
   const query = (rawQuery || "").trim();
-  if (!query) return ALL;
+  if (!query) return VIM_COMMANDS.map((cmd) => ({ cmd, score: 0 }));
 
   const tokens = tokenize(query);
   const ranked = [];
   for (const entry of INDEX) {
     const score = scoreEntry(entry, query, tokens);
-    if (score > 0) ranked.push({ cmd: entry.cmd, score });
+    if (score > 0) ranked.push({ cmd: entry.cmd, score: score + usageBoost(entry.cmd.keys, usage) });
   }
   ranked.sort((a, b) => b.score - a.score);
-  if (!ranked.length) return ALL;
+  if (!ranked.length) return VIM_COMMANDS.map((cmd) => ({ cmd, score: 0 }));
   return ranked.slice(0, limit);
+}
+
+/** The most-used commands first, for the browse view's "Frequent" section. */
+export function topUsed(usage, n = 5) {
+  return VIM_COMMANDS
+    .filter((c) => usage[c.keys])
+    .sort((a, b) => usage[b.keys] - usage[a.keys])
+    .slice(0, n)
+    .map((cmd) => ({ cmd, score: 0 }));
+}
+
+/** All commands grouped by category, preserving database order. */
+export function groupedByCategory() {
+  const order = [];
+  const map = new Map();
+  for (const cmd of VIM_COMMANDS) {
+    if (!map.has(cmd.cat)) {
+      map.set(cmd.cat, []);
+      order.push(cmd.cat);
+    }
+    map.get(cmd.cat).push(cmd);
+  }
+  return order.map((cat) => ({ cat, items: map.get(cat) }));
 }
