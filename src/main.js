@@ -4,6 +4,7 @@ const $q = document.getElementById("q");
 const $results = document.getElementById("results");
 const $toast = document.getElementById("toast");
 const $mic = document.getElementById("mic");
+const $speak = document.getElementById("speak");
 
 let current = []; // current result set
 let active = 0; // index of highlighted row
@@ -74,6 +75,32 @@ async function copyActive() {
   }
 }
 
+// Read the active command aloud (TTS). Uses the macOS `say` command via Rust,
+// which is reliable in the app's WebView; falls back to the Web Speech API
+// when running in a plain browser.
+function speakActive() {
+  const item = current[active];
+  if (!item) return;
+  const text = `${item.cmd.desc}. Press ${spell(item.cmd.keys)}`;
+  if (invoke) {
+    invoke("speak", { text }).catch(() => {});
+  } else if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+  }
+}
+
+// Turn raw keystrokes into something a screen reader / TTS says sensibly.
+function spell(keys) {
+  const primary = keys.split(/\s{2,}|\s*\(/)[0].trim();
+  return primary
+    .replace(/Ctrl-/g, "control ")
+    .replace(/\$/g, " dollar sign")
+    .replace(/\^/g, " caret")
+    .replace(/:/g, "colon ")
+    .replace(/\//g, "slash ");
+}
+
 let toastTimer;
 function showToast(text) {
   $toast.textContent = text;
@@ -97,7 +124,8 @@ $q.addEventListener("keydown", (e) => {
       break;
     case "Enter":
       e.preventDefault();
-      copyActive();
+      if (e.metaKey) speakActive();
+      else copyActive();
       break;
     case "Escape":
       e.preventDefault();
@@ -130,6 +158,8 @@ $mic.addEventListener("click", () => {
   $q.focus();
   showToast("press fn fn to dictate");
 });
+
+$speak.addEventListener("click", speakActive);
 
 // Re-focus the input every time the popup is shown.
 window.addEventListener("focus", () => {
