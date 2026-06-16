@@ -1,5 +1,5 @@
 {
-  "name": "vim-helper",
+  "name": "cli-friend",
   "version": "0.1.0",
   "private": true,
   "description": "A tiny always-on-top menu-bar popup that answers plain-English questions about Vim keyboard shortcuts.",
