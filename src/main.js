@@ -1,4 +1,4 @@
-import { search, topUsed, groupedByCategory } from "./search.js";
+import { search, topUsed, groupedByCategory, DOMAINS } from "./search.js";
 
 const $q = document.getElementById("q");
 const $results = document.getElementById("results");
@@ -7,6 +7,10 @@ const $mic = document.getElementById("mic");
 const $speak = document.getElementById("speak");
 const $gear = document.getElementById("gear");
 const $settings = document.getElementById("settings");
+const $chips = document.getElementById("chips");
+
+// Active domain filter: null = All, else "Vim" / "CLI".
+let domain = null;
 
 // Live settings (loaded from the Rust config at startup).
 let cfg = { hotkey: "cmd+ctrl+h", edge: "right", opacity: 0.26, voice: "" };
@@ -73,12 +77,14 @@ function extraHtml(cmd) {
 
 function rowHtml(cmd, i, query) {
   const desc = query ? highlight(cmd.desc, query) : escapeHtml(cmd.desc);
+  const badge = `<span class="badge badge-${cmd.domain.toLowerCase()}">${escapeHtml(cmd.domain)}</span>`;
+  const meta = [cmd.cat, cmd.mode].filter(Boolean).map(escapeHtml).join(" · ");
   return `
     <li class="row" data-i="${i}">
       <span class="keys">${escapeHtml(cmd.keys)}</span>
       <span class="body">
         <span class="desc">${desc}</span>
-        <span class="meta">${escapeHtml(cmd.mode)} · ${escapeHtml(cmd.cat)}</span>
+        <span class="meta">${badge} ${meta}</span>
         ${extraHtml(cmd)}
       </span>
     </li>`;
@@ -88,14 +94,27 @@ function sectionHtml(title) {
   return `<li class="section">${escapeHtml(title)}</li>`;
 }
 
+// Render the All / Vim / CLI filter chips.
+function renderChips() {
+  const chips = [{ label: "All", value: null }, ...DOMAINS.map((d) => ({ label: d, value: d }))];
+  $chips.innerHTML = chips
+    .map(
+      (c) =>
+        `<button class="chip${c.value === domain ? " active" : ""}" data-domain="${c.value ?? ""}">${c.label}</button>`
+    )
+    .join("");
+}
+
 function render() {
   const query = $q.value.trim();
   current = [];
   let html = "";
 
+  renderChips();
+
   if (!query) {
     // Browse mode: most-used first, then the full list grouped by category.
-    const freq = topUsed(usage, 6);
+    const freq = topUsed(usage, 6, domain);
     if (freq.length) {
       html += sectionHtml("Frequent");
       for (const { cmd } of freq) {
@@ -103,15 +122,16 @@ function render() {
         current.push(cmd);
       }
     }
-    for (const { cat, items } of groupedByCategory()) {
-      html += sectionHtml(cat);
-      for (const cmd of items) {
+    for (const grp of groupedByCategory(domain)) {
+      // Show the domain in the header only when browsing across all domains.
+      html += sectionHtml(domain ? grp.cat : `${grp.domain} · ${grp.cat}`);
+      for (const cmd of grp.items) {
         html += rowHtml(cmd, current.length, "");
         current.push(cmd);
       }
     }
   } else {
-    for (const { cmd } of search(query, { usage })) {
+    for (const { cmd } of search(query, { usage, domain })) {
       html += rowHtml(cmd, current.length, query);
       current.push(cmd);
     }
@@ -226,6 +246,15 @@ $results.addEventListener("click", (e) => {
   if (!row) return;
   active = Number(row.dataset.i);
   copyActive();
+});
+
+// Filter chips: All / Vim / CLI.
+$chips.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  domain = chip.dataset.domain || null;
+  render();
+  $q.focus();
 });
 
 // Speak your question: record + transcribe on-device via the Rust `transcribe`
