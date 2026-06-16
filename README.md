@@ -1,30 +1,36 @@
-# Vim Helper
+# CLI Friend
 
 A tiny, always-on-top **menu-bar popup** that answers plain-English questions
-about Vim keyboard shortcuts. Type (or dictate) something like *"delete to end
-of line"* and it shows you the keys — `D` (or `d$`) — instantly, fully offline.
+about **Vim** keyboard shortcuts *and* **modern CLI tools** (fzf, zoxide,
+ripgrep, fd, bat, yazi…). Type (or dictate) *"delete a line"* → `D` (or `d$`),
+or *"search in files"* → `rg "pattern"` — instantly, fully offline.
 
 ```
  ⌨️ menu-bar icon
  ⌘⌃H →
- ┌─────────────────────┐
- │ vim  ask… 🎤        │
- ├─────────────────────┤
- │  D (or d$)          │
- │   delete to the end │
- │   of the line       │
- └─────────────────────┘
+ ┌──────────────────────────┐
+ │ vim  ask… 🎤 🔊 ⚙️      │
+ │ [All] [Vim] [CLI]        │
+ ├──────────────────────────┤
+ │ rg "pattern"   CLI·rg    │
+ │  search file contents…   │
+ │ dd             VIM·Edit  │
+ │  delete a line           │
+ └──────────────────────────┘
 ```
 
 ## What it does
 
+- **Two domains, one box** — Vim shortcuts and CLI commands, each tagged with a
+  **Vim / CLI badge**. Filter chips (`All · Vim · CLI`) scope when you want.
 - **Summon anywhere** with the global hotkey **⌘⌃H** (Cmd-Ctrl-H), or by
   clicking the menu-bar icon. Press it again — or click away, or hit `Esc` — to
   dismiss. No Dock icon; it lives in the menu bar only.
-- **Ask in plain English** — `copy a line`, `undo`, `replace all in file`,
-  `jump to matching bracket`, `save and quit`. A synonym/concept layer maps
-  different wordings onto the same idea, plus typo tolerance.
-- **Reverse lookup** — type the keys (`dd`, `ciw`, `:%s`) to see what they do.
+- **Ask in plain English** — `copy a line`, `replace all in file`, `find files`,
+  `search history`, `jump directory`. A synonym/concept layer maps different
+  wordings onto the same idea, plus typo tolerance.
+- **Reverse lookup** — type the keys/command (`dd`, `ciw`, `rg`, `fd`) to see
+  what they do.
 - **Speak it** — 🎤 records and transcribes your question **on-device**
   (macOS Speech), no network. 🔊 or `⌘↵` reads the highlighted command aloud.
 - **Browse** — empty query shows your **most-used** commands first, then the
@@ -64,7 +70,7 @@ To launch it automatically: System Settings → General → Login Items → add 
 Click **🎤** and speak — a small Swift helper (`stt/vh-stt.swift`, using
 `SFSpeechRecognizer`) records and transcribes your question **on-device**, then
 drops the text into the search box. It's bundled as a Tauri sidecar
-(`vim-helper-stt`) and compiled automatically on `pnpm build`.
+(`cli-friend-stt`) and compiled automatically on `pnpm build`.
 
 - **First use** prompts once for Microphone + Speech Recognition permission.
 - The WebView can't do in-browser speech recognition, so if the helper is
@@ -73,9 +79,11 @@ drops the text into the search box. It's bundled as a Tauri sidecar
 
 ## Customize
 
-- **Add/edit commands:** `src/vim-data.js` — each entry has `keys`, `desc`,
-  `mode`, `cat`, `tags` (search synonyms), and optional `also`/`use`. The search
-  picks up new lines automatically.
+- **Add/edit commands:** `src/vim-data.js` (Vim) and `src/cli-data.js` (CLI) —
+  each entry has `keys`, `desc`, `cat`, `tags` (search synonyms), optional
+  `also`/`use` (and `mode` for Vim). The search picks up new lines automatically.
+- **Add a whole new domain** (git, tmux, docker…): drop a `*-data.js` file and
+  add one line to the `ENTRIES`/`DOMAINS` list in `src/search.js`.
 - **Teach it new phrasings:** add a line to the `GROUPS` map in `src/search.js`
   (e.g. a new synonym for "delete") and the whole search understands it.
 - **Hotkey / opacity / edge / voice:** the ⚙ settings panel (no recompile).
@@ -89,8 +97,9 @@ src/                 frontend (static, no bundler)
   index.html
   styles.css
   main.js            UI: search, browse, keyboard nav, copy, TTS, settings
-  search.js          offline synonym/concept search + fuzzy + frequency
-  vim-data.js        the curated command database  ← edit me
+  search.js          offline synonym/concept search + fuzzy + frequency + domains
+  vim-data.js        curated Vim command database   ← edit me
+  cli-data.js        curated CLI cheatsheet (fzf/rg/fd/bat/zoxide/yazi)  ← edit me
 src-tauri/           Rust backend
   src/lib.rs         tray, hotkey, window, config, TTS, transcribe
   tauri.conf.json    window + bundle config
