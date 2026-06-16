@@ -1,4 +1,4 @@
-// Lightweight offline search over the Vim command database.
+// Lightweight offline search across command databases (Vim + CLI).
 //
 // "Understanding" without an LLM: a synonym/concept layer collapses different
 // words for the same idea onto one canonical token ("remove"/"cut"/"erase" ->
@@ -9,6 +9,17 @@
 // commands you look up most.
 
 import { VIM_COMMANDS } from "./vim-data.js";
+import { CLI_COMMANDS } from "./cli-data.js";
+
+// Every command across domains, each tagged with its domain. Add a new data
+// file + a line here (e.g. GIT_COMMANDS) to teach a whole new domain.
+const ENTRIES = [
+  ...VIM_COMMANDS.map((c) => ({ ...c, domain: "Vim" })),
+  ...CLI_COMMANDS.map((c) => ({ ...c, domain: "CLI" })),
+];
+
+/** Domains in display order, for filter chips / browse grouping. */
+export const DOMAINS = ["Vim", "CLI"];
 
 // Words that add no signal — ignored when scoring (but never block a match).
 const STOP = new Set([
@@ -51,6 +62,13 @@ const GROUPS = {
   screen: ["window", "view", "viewport", "visible"],
   macro: ["macros", "record", "recording", "automate", "repeat"],
   mark: ["bookmark", "marks", "bookmarks"],
+  // CLI-flavoured concepts
+  directory: ["dir", "dirs", "folder", "folders", "directories"],
+  process: ["processes", "proc", "procs"],
+  history: ["histories", "hist"],
+  pattern: ["patterns", "regex", "regexp"],
+  preview: ["previews"],
+  branch: ["branches"],
 };
 
 // Flatten GROUPS -> { word: canonical }.
@@ -110,7 +128,7 @@ function withinEditDistance(a, b, max) {
 }
 
 // Build a cached, canonicalized search index once.
-const INDEX = VIM_COMMANDS.map((cmd) => ({
+const INDEX = ENTRIES.map((cmd) => ({
   cmd,
   keysLower: normalize(cmd.keys),
   descLower: normalize(cmd.desc),
@@ -152,14 +170,18 @@ function scoreEntry(entry, rawQuery, tokens) {
   const meaningful = tokens.filter((t) => !STOP.has(t));
   const considered = meaningful.length ? meaningful : tokens;
   let matchedTokens = 0;
+  let descMatched = 0; // tokens matched in the (high-signal) description
 
   for (const t of considered) {
     let best = 0;
+    let inDesc = false;
     if (entry.tagTokens.has(t)) best = Math.max(best, 16);
-    if (entry.descTokens.has(t)) best = Math.max(best, 14);
-    else {
+    if (entry.descTokens.has(t)) {
+      best = Math.max(best, 14);
+      inDesc = true;
+    } else {
       for (const dt of entry.descTokens) {
-        if (dt.startsWith(t) && t.length >= 3) { best = Math.max(best, 9); break; }
+        if (dt.startsWith(t) && t.length >= 3) { best = Math.max(best, 9); inDesc = true; break; }
       }
     }
     if (entry.catLower && entry.catLower.includes(t) && t.length >= 3) best = Math.max(best, 10);
@@ -172,6 +194,7 @@ function scoreEntry(entry, rawQuery, tokens) {
     }
 
     if (best > 0) matchedTokens++;
+    if (inDesc) descMatched++;
     score += best;
   }
 
@@ -180,6 +203,12 @@ function scoreEntry(entry, rawQuery, tokens) {
     score += 12 * considered.length;
   } else if (considered.length > 1 && matchedTokens >= 2) {
     score += 5 * matchedTokens;
+  }
+
+  // High-signal tiebreak: the whole query appearing in the *description* beats
+  // the same words scattered across tags (e.g. "find files" → `fd`, not `:%s`).
+  if (considered.length > 1 && descMatched === considered.length) {
+    score += 10;
   }
 
   return score;
@@ -192,45 +221,57 @@ function usageBoost(keys, usage) {
   return n ? Math.min(n, 8) * 4 : 0;
 }
 
+const inDomain = (cmd, domain) => !domain || cmd.domain === domain;
+
 /**
  * Search the database. Returns ranked { cmd, score } results.
  * Empty query or no matches → the full list, so there's always something to scroll.
- * `usage` is an optional { keys: count } map that boosts frequently-used commands.
+ * `usage` boosts frequently-used commands; `domain` ("Vim"/"CLI") scopes results.
  */
-export function search(rawQuery, { usage = {}, limit = 50 } = {}) {
+export function search(rawQuery, { usage = {}, limit = 50, domain = null } = {}) {
   const query = (rawQuery || "").trim();
-  if (!query) return VIM_COMMANDS.map((cmd) => ({ cmd, score: 0 }));
+  const all = () => ENTRIES.filter((c) => inDomain(c, domain)).map((cmd) => ({ cmd, score: 0 }));
+  if (!query) return all();
 
   const tokens = tokenize(query);
   const ranked = [];
   for (const entry of INDEX) {
+    if (!inDomain(entry.cmd, domain)) continue;
     const score = scoreEntry(entry, query, tokens);
     if (score > 0) ranked.push({ cmd: entry.cmd, score: score + usageBoost(entry.cmd.keys, usage) });
   }
   ranked.sort((a, b) => b.score - a.score);
-  if (!ranked.length) return VIM_COMMANDS.map((cmd) => ({ cmd, score: 0 }));
+  if (!ranked.length) return all();
   return ranked.slice(0, limit);
 }
 
 /** The most-used commands first, for the browse view's "Frequent" section. */
-export function topUsed(usage, n = 5) {
-  return VIM_COMMANDS
-    .filter((c) => usage[c.keys])
+export function topUsed(usage, n = 5, domain = null) {
+  return ENTRIES
+    .filter((c) => inDomain(c, domain) && usage[c.keys])
     .sort((a, b) => usage[b.keys] - usage[a.keys])
     .slice(0, n)
     .map((cmd) => ({ cmd, score: 0 }));
 }
 
-/** All commands grouped by category, preserving database order. */
-export function groupedByCategory() {
+/**
+ * Commands grouped into sections, preserving database order.
+ * Returns [{ domain, cat, items }]; scoped to `domain` when given.
+ */
+export function groupedByCategory(domain = null) {
   const order = [];
   const map = new Map();
-  for (const cmd of VIM_COMMANDS) {
-    if (!map.has(cmd.cat)) {
-      map.set(cmd.cat, []);
-      order.push(cmd.cat);
+  for (const cmd of ENTRIES) {
+    if (!inDomain(cmd, domain)) continue;
+    const key = `${cmd.domain} ${cmd.cat}`;
+    if (!map.has(key)) {
+      map.set(key, []);
+      order.push(key);
     }
-    map.get(cmd.cat).push(cmd);
+    map.get(key).push(cmd);
   }
-  return order.map((cat) => ({ cat, items: map.get(cat) }));
+  return order.map((key) => {
+    const [dom, cat] = key.split(" ");
+    return { domain: dom, cat, items: map.get(key) };
+  });
 }
