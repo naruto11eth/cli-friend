@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vim Helper</title>
+    <title>CLI Friend</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -17,12 +17,13 @@
           autocapitalize="off"
           autocorrect="off"
           spellcheck="false"
-          placeholder="ask… e.g. delete to end of line"
+          placeholder="ask… e.g. delete a line, find files, search history"
         />
         <button id="speak" title="Read aloud (⌘↵)" aria-label="Read aloud">🔊</button>
         <button id="mic" title="Dictate (macOS)" aria-label="Dictate">🎤</button>
         <button id="gear" title="Settings" aria-label="Settings">⚙️</button>
       </div>
+      <div id="chips" class="chips"></div>
       <ul id="results" class="results"></ul>
 
       <div id="settings" class="settings" hidden>

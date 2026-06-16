@@ -106,6 +106,53 @@ body {
   50% { box-shadow: 0 0 0 5px rgba(126, 211, 33, 0); }
 }
 
+/* ── domain filter chips ── */
+.chips {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 4px;
+}
+.chip {
+  background: var(--key-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg-dim);
+  font-size: 11px;
+  padding: 3px 11px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.chip:hover {
+  color: var(--fg);
+}
+.chip.active {
+  background: var(--accent);
+  border-color: transparent;
+  color: #0d1206;
+  font-weight: 600;
+}
+
+/* domain badge on each result */
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+.badge-vim {
+  background: rgba(126, 211, 33, 0.18);
+  color: var(--accent);
+}
+.badge-cli {
+  background: rgba(88, 166, 255, 0.18);
+  color: #58a6ff;
+}
+
 /* ── results ── */
 .results {
   list-style: none;
@@ -179,8 +226,10 @@ body {
   background: var(--key-bg);
   padding: 3px 7px;
   border-radius: 6px;
-  white-space: nowrap;
   flex: none;
+  max-width: 60%;
+  white-space: normal;
+  overflow-wrap: anywhere;
   border: 1px solid #00000040;
 }
 
