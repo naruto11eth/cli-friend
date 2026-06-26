@@ -2,11 +2,12 @@
   "name": "cli-friend",
   "version": "0.1.0",
   "private": true,
-  "description": "A tiny always-on-top menu-bar popup that answers plain-English questions about Vim keyboard shortcuts.",
+  "description": "A tiny always-on-top menu-bar popup that answers plain-English questions about Vim keyboard shortcuts and modern CLI tools.",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
-    "build": "tauri build"
+    "build": "tauri build",
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"
