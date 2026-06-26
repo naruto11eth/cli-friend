@@ -44,7 +44,7 @@ const GROUPS = {
   line: ["lines", "row", "rows"],
   word: ["words", "token"],
   file: ["document", "buffer", "doc", "files", "whole"],
-  undo: ["revert", "undid", "back", "mistake"],
+  undo: ["revert", "undid", "mistake"],
   redo: ["reapply", "forward"],
   replace: ["substitute", "swap", "sub", "replacing", "replaces"],
   change: ["edit", "modify", "retype", "rewrite"],
@@ -133,7 +133,8 @@ const INDEX = ENTRIES.map((cmd) => ({
   keysLower: normalize(cmd.keys),
   descLower: normalize(cmd.desc),
   descTokens: new Set(tokenize(cmd.desc)),
-  tagTokens: new Set(tokenize(cmd.tags || "")),
+  // Fold the action keyword into the tag tokens so it matches strongly.
+  tagTokens: new Set(tokenize(`${cmd.tags || ""} ${cmd.kw || ""}`)),
   catLower: normalize(cmd.cat || ""),
 }));
 
