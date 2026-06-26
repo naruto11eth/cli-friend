@@ -23,6 +23,9 @@ or *"search in files"* → `rg "pattern"` — instantly, fully offline.
 
 - **Two domains, one box** — Vim shortcuts and CLI commands, each tagged with a
   **Vim / CLI badge**. Filter chips (`All · Vim · CLI`) scope when you want.
+- **Action keyword at a glance** — every CLI entry carries a one-word chip
+  (`search`, `find`, `jump`, `preview`, `kill`…) so you can tell what a command
+  is for without reading the whole line. Keywords are searchable too.
 - **Summon anywhere** with the global hotkey **⌘⌃H** (Cmd-Ctrl-H), or by
   clicking the menu-bar icon. Press it again — or click away, or hit `Esc` — to
   dismiss. No Dock icon; it lives in the menu bar only.
@@ -52,6 +55,7 @@ this machine).
 pnpm install        # one time — installs the Tauri CLI
 pnpm dev            # run in dev mode (hot, launches the app)
 pnpm build          # produce a distributable .app / .dmg
+pnpm test           # run the search-ranking tests (node --test, no deps)
 ```
 
 After `pnpm build`, the app is at:
