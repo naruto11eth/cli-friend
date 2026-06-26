@@ -78,13 +78,15 @@ function extraHtml(cmd) {
 function rowHtml(cmd, i, query) {
   const desc = query ? highlight(cmd.desc, query) : escapeHtml(cmd.desc);
   const badge = `<span class="badge badge-${cmd.domain.toLowerCase()}">${escapeHtml(cmd.domain)}</span>`;
+  // Action keyword chip — lets you tell at a glance what the command is for.
+  const kw = cmd.kw ? `<span class="kw">${escapeHtml(cmd.kw)}</span>` : "";
   const meta = [cmd.cat, cmd.mode].filter(Boolean).map(escapeHtml).join(" · ");
   return `
     <li class="row" data-i="${i}">
       <span class="keys">${escapeHtml(cmd.keys)}</span>
       <span class="body">
         <span class="desc">${desc}</span>
-        <span class="meta">${badge} ${meta}</span>
+        <span class="meta">${badge}${kw} ${meta}</span>
         ${extraHtml(cmd)}
       </span>
     </li>`;
