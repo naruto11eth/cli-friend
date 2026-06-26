@@ -39,7 +39,8 @@ body {
   /* Translucent tint over the native frosted-glass (vibrancy) backdrop.
      --note-alpha is set from settings at runtime. */
   background: rgba(28, 31, 37, var(--note-alpha, 0.26));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* Border fades with opacity so opacity 0 is genuinely see-through. */
+  border: 1px solid rgba(255, 255, 255, min(0.12, calc(var(--note-alpha, 0.26) * 0.5)));
   border-radius: 14px;
   overflow: hidden;
   position: relative;
@@ -153,6 +154,20 @@ body {
   color: #58a6ff;
 }
 
+/* action keyword chip — "what is this command for" at a glance */
+.kw {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 1px 6px;
+  margin-right: 4px;
+  border-radius: 4px;
+  background: rgba(126, 211, 33, 0.14);
+  color: var(--accent);
+  vertical-align: middle;
+}
+
 /* ── results ── */
 .results {
   list-style: none;
@@ -191,7 +206,9 @@ body {
   padding: 10px 9px 3px;
   position: sticky;
   top: 0;
-  background: rgba(20, 22, 27, 0.85);
+  /* Header tint tracks opacity (denser than the panel) so it stays readable
+     at normal opacity but vanishes when you drag opacity to 0. */
+  background: rgba(20, 22, 27, min(0.85, calc(var(--note-alpha, 0.26) * 3)));
   backdrop-filter: blur(6px);
 }
 
